@@ -11,9 +11,6 @@ ApplicationWindow {
     height: 480
     title: qsTr("Hello World")
 
-    Window {
-        id: colorWindow
-    }
     Flickable {
         id: scrollView
         anchors.fill: parent
