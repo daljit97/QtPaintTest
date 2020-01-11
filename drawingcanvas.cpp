@@ -116,7 +116,7 @@ void DrawingCanvas::drawOnBuffer(QPointF pos)
             path.moveTo(m_lastPoint);
             path.lineTo(pos);
 
-            qreal centerRadius = 5;
+            qreal centerRadius = 20;
 
             auto pathLength = path.length();
 
