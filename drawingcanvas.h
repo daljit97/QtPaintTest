@@ -1,11 +1,16 @@
-﻿#ifndef DRAWINGCANVAS_H
+﻿    #ifndef DRAWINGCANVAS_H
 #define DRAWINGCANVAS_H
 
 #include <QObject>
 #include <QQuickPaintedItem>
-#include <QPixmap>
+#include <QImage>
 #include <QTimer>
 #include <QPainter>
+#include <QQuickWindow>
+#include <QOpenGLFramebufferObject>
+#include <QOpenGLContext>
+
+#include <memory>
 
 struct Outline{
     QPolygonF points;
@@ -22,9 +27,17 @@ struct Outline{
     }
 };
 
+struct QSGTextureDeletor
+{
+  void operator()(QSGTexture *p)
+  {
+    delete p;
+  }
+};
 class DrawingCanvas : public QQuickPaintedItem
 {
     Q_OBJECT
+    Q_PROPERTY(QQuickWindow* window READ window WRITE setWindow NOTIFY windowChanged)
     Q_PROPERTY(bool drawing READ drawing WRITE setDrawing NOTIFY drawingChanged)
     Q_PROPERTY(int penWidth READ penWidth WRITE setPenWidth NOTIFY penWidthChanged)
     Q_PROPERTY(QString penColor READ penColor WRITE setPenColor NOTIFY penColorChanged)
@@ -38,11 +51,17 @@ public:
     Q_INVOKABLE void penMoved(QPointF pos);
     Q_INVOKABLE void penReleased();
     int penWidth() const;
+    Q_INVOKABLE void saveSvg();
 
-    void paint(QPainter *painter) override;
+    void paint(QPainter *painter);
 
     QString penColor() const;
 
+
+    QQuickWindow* window() const
+    {
+        return m_window;
+    }
 
 public slots:
     void setDrawing(bool drawing);
@@ -51,16 +70,31 @@ public slots:
 
     void setPenColor(QString penColor);
 
+    void setWindow(QQuickWindow* window)
+    {
+        if (m_window == window)
+            return;
+
+        m_window = window;
+        emit windowChanged(m_window);
+    }
+
 signals:
     void drawingChanged(bool drawing);
     void penWidthChanged(int penWidth);
     void penColorChanged(QString penColor);
 
+    void windowChanged(QQuickWindow* window);
+
 private:
     void drawOnBuffer(QPointF pos);
 
+    std::unique_ptr<QSGTexture, QSGTextureDeletor> m_texture;
+
     bool m_drawing;
-    QPixmap m_buffer;
+    QImage m_buffer;
+    QOpenGLFramebufferObject* m_glBuffer;
+    QOpenGLContext context;
     int m_penWidth;
     QString m_penColor;
 
@@ -71,6 +105,7 @@ private:
 
 
     bool m_outlineEraser;
+    QQuickWindow* m_window;
 };
 
 #endif // DRAWINGCANVAS_H
