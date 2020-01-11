@@ -5,16 +5,11 @@
 #include <QFileDialog>
 #include <QElapsedTimer>
 #include <QOpenGLFramebufferObject>
-#include <QOpenGLPaintDevice>
-#include <QSGGeometryNode>
-#include <QSGTexture>
-#include <QSGSimpleTextureNode>
 #include <math.h>
 
 DrawingCanvas::DrawingCanvas(QQuickItem *parent) : QQuickPaintedItem(parent)
 {
     m_penWidth = 4;
-    m_glBuffer = nullptr;
     //    setRenderTarget(FramebufferObject);
 }
 
@@ -56,27 +51,6 @@ void DrawingCanvas::penReleased()
 
 void DrawingCanvas::paint(QPainter *painter)
 {
-    //    auto l1 = QPointF(100,100);
-    //    auto l2 = QPointF(500, 800);
-
-    //    auto w = 30; // rectangle width
-    //    QLineF line = QLineF(l1, l2);
-    //    QRectF rect = QRectF(0, -w/2, line.length(), w); // the rectangle will have the same width as the line's length
-    //    painter->translate(line.p1());
-    //    painter->rotate(-line.angle()); // rotate the rectangle
-
-    //    rect.setWidth(line.length());
-    //    rect.setHeight(w);
-
-    //    painter->setPen(Qt::NoPen);
-    //    painter->setBrush(Qt::blue);
-    //    painter->drawRect(rect);
-
-    //    painter->resetTransform();
-    //    painter->setPen(Qt::red);
-    //    painter->drawLine(line); // draw the line
-    //    painter->drawEllipse(l1, 10,10); // draw the origin
-
     painter->drawImage(m_updateRect, m_buffer, m_updateRect);
     m_updateRect = QRect();
 }
@@ -91,45 +65,6 @@ int DrawingCanvas::penWidth() const
     return m_penWidth;
 }
 
-void DrawingCanvas::saveSvg()
-{
-    QString path = "/home/casa78/Pictures/image.svg";
-
-    QSvgGenerator generator;
-    generator.setFileName("/home/casa78/Pictures/image.svg");
-    generator.setSize(QSize(width(), height()));
-    generator.setViewBox(QRect(0, 0, width(), height()));
-    generator.setTitle(tr("SVG Generator Example Drawing"));
-    generator.setDescription(tr("An SVG drawing created by the SVG Generator "
-                                "Example provided with Qt."));
-    QPainter painter(&generator);
-    QPen pen;
-    pen.setWidth(penWidth());
-    pen.setColor(penColor());
-    pen.setJoinStyle(Qt::RoundJoin);
-    pen.setCapStyle(Qt::RoundCap);
-    for (auto o : m_outlines){
-        auto points = o.points;
-
-        for(int j = 0; j < points.size(); j++){
-            if(j > 2){
-                QPainterPath path;
-                auto previousPoint = points.at(j - 2);
-                auto lastPoint = points.at(j-1);
-                auto mid1 = (lastPoint + previousPoint)/2;
-                auto mid2 = (points.at(j) + lastPoint)/2;
-
-                path.moveTo(mid1);
-                path.quadTo(lastPoint, mid2);
-
-
-                painter.drawPath(path);
-            }
-        }
-    }
-
-    painter.end();
-}
 
 void DrawingCanvas::setDrawing(bool drawing)
 {
@@ -170,16 +105,12 @@ void DrawingCanvas::initiateBuffer()
 
 void DrawingCanvas::drawOnBuffer(QPointF pos)
 {
-    int rad = (penWidth()) + 500;
-    //    QElapsedTimer timer;
-    //    timer.start();
+    int rad = (penWidth()) + 50;
+
     QPainter bufferPainter;
     if(bufferPainter.begin(&m_buffer)){
-        //        bufferPainter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
-        bufferPainter.setCompositionMode(QPainter::CompositionMode_DestinationOver);
-        // this will help smoothing the curves
         int pointsLength = m_currentOutline.points.length();
-        QPixmap image= QPixmap("/home/casa78/QtPaintTest/ball.png").scaledToWidth(penWidth(), Qt::SmoothTransformation);
+
         QPainterPath path;
         if(pointsLength > 2){
             auto previousPoint = m_currentOutline.points.at(pointsLength - 3);
@@ -191,14 +122,11 @@ void DrawingCanvas::drawOnBuffer(QPointF pos)
             path.lineTo(pos);
 
             qreal centerRadius = 5;
+
             auto pathLength = path.length();
 
-            // 2px long
-            // 4px radius
-            //
             qreal step = centerRadius*2/pathLength/3;
-            qDebug() << pathLength << centerRadius << step;
-            qDebug() << step;
+
             for (qreal i = 0.0; i <= 1; i+=step){
                 QPointF centerPoint = path.pointAtPercent(i);
 

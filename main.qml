@@ -41,26 +41,4 @@ ApplicationWindow {
                                Qt.point(mouseX, mouseY + scrollView.contentY))
         onReleased: drawingCanvas.penReleased()
     }
-    //    ToolBar {
-    //        width: parent.width
-    //        RowLayout {
-    //            anchors.fill: parent
-    //            CheckBox {
-    //                id: oEraser
-    //                text: "Outline Eraser"
-    //            }
-    //            Button {
-    //                text: "Save SVG"
-    //                onClicked: drawingCanvas.saveSvg()
-    //            }
-    //            Slider {
-    //                id: scaleSlider
-    //                from: 1
-    //                to: 3
-    //                onValueChanged: {
-    //                    drawingCanvas.scale = value
-    //                }
-    //            }
-    //        }
-    //    }
 }

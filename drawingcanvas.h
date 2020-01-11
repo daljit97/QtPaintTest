@@ -27,13 +27,6 @@ struct Outline{
     }
 };
 
-struct QSGTextureDeletor
-{
-  void operator()(QSGTexture *p)
-  {
-    delete p;
-  }
-};
 class DrawingCanvas : public QQuickPaintedItem
 {
     Q_OBJECT
@@ -51,7 +44,6 @@ public:
     Q_INVOKABLE void penMoved(QPointF pos);
     Q_INVOKABLE void penReleased();
     int penWidth() const;
-    Q_INVOKABLE void saveSvg();
 
     void paint(QPainter *painter);
 
@@ -89,11 +81,8 @@ signals:
 private:
     void drawOnBuffer(QPointF pos);
 
-    std::unique_ptr<QSGTexture, QSGTextureDeletor> m_texture;
-
     bool m_drawing;
     QImage m_buffer;
-    QOpenGLFramebufferObject* m_glBuffer;
     QOpenGLContext context;
     int m_penWidth;
     QString m_penColor;
