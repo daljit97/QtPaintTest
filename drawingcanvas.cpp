@@ -20,10 +20,6 @@ bool DrawingCanvas::drawing() const
 
 void DrawingCanvas::penPressed(QPointF pos)
 {
-    if(!context.isValid()){
-        context.create();
-    }
-    context.makeCurrent(window());
     setDrawing(true);
     m_currentOutline.addPoint(pos);
     m_lastPoint = pos;
@@ -46,7 +42,6 @@ void DrawingCanvas::penReleased()
     m_outlines.append(m_currentOutline);
     m_currentOutline.clear();
     m_lastPoint = QPointF();
-    context.doneCurrent();
 }
 
 void DrawingCanvas::paint(QPainter *painter)

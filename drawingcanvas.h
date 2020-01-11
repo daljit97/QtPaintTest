@@ -30,7 +30,6 @@ struct Outline{
 class DrawingCanvas : public QQuickPaintedItem
 {
     Q_OBJECT
-    Q_PROPERTY(QQuickWindow* window READ window WRITE setWindow NOTIFY windowChanged)
     Q_PROPERTY(bool drawing READ drawing WRITE setDrawing NOTIFY drawingChanged)
     Q_PROPERTY(int penWidth READ penWidth WRITE setPenWidth NOTIFY penWidthChanged)
     Q_PROPERTY(QString penColor READ penColor WRITE setPenColor NOTIFY penColorChanged)
@@ -50,11 +49,6 @@ public:
     QString penColor() const;
 
 
-    QQuickWindow* window() const
-    {
-        return m_window;
-    }
-
 public slots:
     void setDrawing(bool drawing);
 
@@ -62,28 +56,18 @@ public slots:
 
     void setPenColor(QString penColor);
 
-    void setWindow(QQuickWindow* window)
-    {
-        if (m_window == window)
-            return;
-
-        m_window = window;
-        emit windowChanged(m_window);
-    }
 
 signals:
     void drawingChanged(bool drawing);
     void penWidthChanged(int penWidth);
     void penColorChanged(QString penColor);
 
-    void windowChanged(QQuickWindow* window);
 
 private:
     void drawOnBuffer(QPointF pos);
 
     bool m_drawing;
     QImage m_buffer;
-    QOpenGLContext context;
     int m_penWidth;
     QString m_penColor;
 
@@ -94,7 +78,6 @@ private:
 
 
     bool m_outlineEraser;
-    QQuickWindow* m_window;
 };
 
 #endif // DRAWINGCANVAS_H

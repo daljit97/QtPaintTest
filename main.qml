@@ -28,7 +28,6 @@ ApplicationWindow {
             penWidth: 20
             onWidthChanged: drawingCanvas.initiateBuffer()
             transformOrigin: Item.TopLeft
-            window: appWindow
         }
     }
 
