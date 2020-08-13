@@ -1,6 +1,7 @@
 #include "drawingcanvas.h"
 
 #include <QPainter>
+#include <QPainterPath>
 #include <QtSvg/QSvgGenerator>
 #include <QFileDialog>
 #include <QElapsedTimer>
@@ -10,7 +11,7 @@
 DrawingCanvas::DrawingCanvas(QQuickItem *parent) : QQuickPaintedItem(parent)
 {
     m_penWidth = 4;
-    //    setRenderTarget(FramebufferObject);
+        setRenderTarget(FramebufferObject);
 }
 
 bool DrawingCanvas::drawing() const
@@ -104,6 +105,9 @@ void DrawingCanvas::drawOnBuffer(QPointF pos)
 
     QPainter bufferPainter;
     if(bufferPainter.begin(&m_buffer)){
+        bufferPainter.setRenderHints(QPainter::SmoothPixmapTransform);
+        bufferPainter.setRenderHint(QPainter::Antialiasing);
+        bufferPainter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         int pointsLength = m_currentOutline.points.length();
 
         QPainterPath path;
@@ -116,23 +120,22 @@ void DrawingCanvas::drawOnBuffer(QPointF pos)
             path.moveTo(m_lastPoint);
             path.lineTo(pos);
 
-            qreal centerRadius = 20;
+            qreal centerRadius = 1.5;
 
             auto pathLength = path.length();
-
-            qreal step = centerRadius*2/pathLength/3;
-
+            qreal step = std::min(centerRadius*2/(pathLength)/10, 1.0);
             for (qreal i = 0.0; i <= 1; i+=step){
                 QPointF centerPoint = path.pointAtPercent(i);
 
                 QRadialGradient radialGrad(centerPoint, centerRadius);
                 radialGrad.setColorAt(0.000, QColor(0, 0, 0, 255));
-                radialGrad.setColorAt(0.5, QColor(0, 0, 0, 0.8 * 255));
-                radialGrad.setColorAt(1.000, QColor(0, 0, 0, 0.000));
+                radialGrad.setColorAt(0.2, QColor(0, 0, 0, 0.2 * 255));
+                radialGrad.setColorAt(1.000, QColor(0, 0, 0, 0));
 
                 QPen pen;
-                pen.setWidth(400);
-                pen.setColor("black");
+                pen.setCapStyle(Qt::RoundCap);
+                pen.setJoinStyle(Qt::RoundJoin);
+                pen.setWidth(centerRadius * 2);
                 pen.setBrush(radialGrad);
 
                 bufferPainter.setPen(pen);

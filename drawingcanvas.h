@@ -76,7 +76,7 @@ private:
     QRect m_updateRect;
     QVector<Outline> m_outlines;
 
-
+    QPolygonF m_points;
     bool m_outlineEraser;
 };
 
